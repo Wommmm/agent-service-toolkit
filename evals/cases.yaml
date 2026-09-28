@@ -1,0 +1,48 @@
+cases:
+  - id: rag_pto_days
+    agent_id: rag-assistant
+    question: "How many days of paid time off do employees receive each year?"
+    expected_any_of:
+      - "15"
+      - "fifteen"
+    max_tool_rounds: 3
+
+  - id: rag_sick_leave_days
+    agent_id: rag-assistant
+    question: "How many sick leave days do employees receive each year?"
+    expected_any_of:
+      - "5"
+      - "five"
+    max_tool_rounds: 3
+  
+  - id: rag_parental_leave
+    agent_id: rag-assistant
+    question: "How much paid parental leave do employees receive?"
+    expected_any_of:
+      - "12 weeks"
+      - "twelve weeks"
+    max_tool_rounds: 3
+
+  - id: rag_public_holidays
+    agent_id: rag-assistant
+    question: "How many paid public holidays does the company observe?"
+    expected_any_of:
+      - "10"
+      - "ten"
+    max_tool_rounds: 3
+
+  - id: rag_pto_accrual
+    agent_id: rag-assistant
+    question: "How is paid time off accrued?"
+    expected_any_of:
+      - "monthly"
+      - "each month"
+    max_tool_rounds: 3
+
+  - id: rag_leave_request
+    agent_id: rag-assistant
+    question: "Where should employees submit leave requests?"
+    expected_any_of:
+      - "HR portal"
+      - "portal"
+    max_tool_rounds: 3
