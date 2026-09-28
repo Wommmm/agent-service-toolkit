@@ -2,10 +2,9 @@ import os
 import shutil
 
 from dotenv import load_dotenv
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader
-from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -18,20 +17,16 @@ def create_chroma_db(
     chunk_size: int = 2000,
     overlap: int = 500,
 ):
-    embeddings = OpenAIEmbeddings(api_key=os.environ["OPENAI_API_KEY"])
-
     # Initialize Chroma vector store
     if delete_chroma_db and os.path.exists(db_name):
         shutil.rmtree(db_name)
         print(f"Deleted existing database at {db_name}")
+    chroma = Chroma(persist_directory=db_name)
 
-    chroma = Chroma(
-        embedding_function=embeddings,
-        persist_directory=f"./{db_name}",
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=overlap,
     )
-
-    # Initialize text splitter
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=overlap)
 
     # Iterate over files in the folder
     for filename in os.listdir(folder_path):
