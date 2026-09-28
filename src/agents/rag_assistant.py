@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, AnyMessage, SystemMessage
 from langchain_core.runnables import (
     RunnableConfig,
     RunnableLambda,
@@ -30,6 +30,14 @@ class AgentState(MessagesState, total=False):
 tools = [database_search]
 
 
+def count_tool_rounds(messages: list[AnyMessage]) -> int:
+    tool_rounds = 0
+    for msg in messages:
+        if isinstance(msg, AIMessage) and msg.tool_calls:
+            tool_rounds += 1
+    return tool_rounds
+
+
 current_date = datetime.now().strftime("%B %d, %Y")
 instructions = f"""
     You are AcmeBot, a helpful and knowledgeable virtual assistant designed to support employees by retrieving
@@ -47,13 +55,15 @@ instructions = f"""
     """
 
 
-def wrap_model(model: BaseChatModel) -> RunnableSerializable[AgentState, AIMessage]:
-    bound_model = model.bind_tools(tools)
+def wrap_model(
+    model: BaseChatModel, bind_tools: bool = True
+) -> RunnableSerializable[AgentState, AIMessage]:
+    target = model.bind_tools(tools) if bind_tools else model
     preprocessor = RunnableLambda(
         lambda state: [SystemMessage(content=instructions)] + state["messages"],
         name="StateModifier",
     )
-    return preprocessor | bound_model  # type: ignore[return-value]
+    return preprocessor | target  # type: ignore[return-value]
 
 
 def format_safety_message(safety: SafeguardOutput) -> AIMessage:
@@ -65,7 +75,11 @@ def format_safety_message(safety: SafeguardOutput) -> AIMessage:
 
 async def acall_model(state: AgentState, config: RunnableConfig) -> AgentState:
     m = get_model(config["configurable"].get("model", settings.DEFAULT_MODEL))
-    model_runnable = wrap_model(m)
+    tool_rounds = count_tool_rounds(state["messages"])
+    model_runnable = wrap_model(
+        m,
+        bind_tools=tool_rounds < settings.MAX_TOOL_ROUNDS,
+    )
     response = await model_runnable.ainvoke(state, config)
 
     if state["remaining_steps"] < 2 and response.tool_calls:

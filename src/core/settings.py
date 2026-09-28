@@ -77,6 +77,7 @@ class Settings(BaseSettings):
     PORT: int = 8080
     GRACEFUL_SHUTDOWN_TIMEOUT: int = 30
     LOG_LEVEL: LogLevel = LogLevel.WARNING
+    MAX_TOOL_ROUNDS: int = Field(default=3, ge=1, le=20)
 
     AUTH_SECRET: SecretStr | None = None
 
