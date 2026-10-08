@@ -1,0 +1,65 @@
+{
+  "source": "real_agent_mcp",
+  "question": "RS-12如何进行电池测试？",
+  "backend": "mcp",
+  "tool_calls": [
+    {
+      "name": "knowledge_search",
+      "args": {
+        "query": "RS-12 电池测试"
+      },
+      "id": "call_00_BdcfNZcPWZjEpneNv9Ln1542",
+      "type": "tool_call"
+    },
+    {
+      "name": "knowledge_search",
+      "args": {
+        "query": "RS-12 数字万用表 使用说明"
+      },
+      "id": "call_00_HZRkJvuxSdAObqpLvT470322",
+      "type": "tool_call"
+    },
+    {
+      "name": "knowledge_search",
+      "args": {
+        "query": "RS-12 规格 型号"
+      },
+      "id": "call_01_yhMFwSF4JX7FbUxc9dz20782",
+      "type": "tool_call"
+    }
+  ],
+  "tool_results": [
+    {
+      "name": "knowledge_search",
+      "status": "success",
+      "document_count": 3,
+      "sources": [
+        "local",
+        "web",
+        "local"
+      ]
+    },
+    {
+      "name": "knowledge_search",
+      "status": "success",
+      "document_count": 3,
+      "sources": [
+        "local",
+        "web",
+        "web"
+      ]
+    },
+    {
+      "name": "knowledge_search",
+      "status": "success",
+      "document_count": 3,
+      "sources": [
+        "web",
+        "web",
+        "local"
+      ]
+    }
+  ],
+  "latency_seconds": 82.09,
+  "answer": "RS-12（RS PRO 手持式数字万用表，RS 库存编号 123-1939）的电池测试方法如下：\n\n**测试步骤**\n\n1. 将黑色表笔插入负极 **COM** 端口，红色表笔插入正极 **V** 端口。\n2. 使用功能选择键，选择 **1.5V** 或 **9V** 电池档位。\n3. 将红色表笔接触电池正极，将黑色表笔接触电池负极。\n4. 在显示屏上读取数值。\n\n**结果判读**\n\n| 判定 | 良好 | 较弱 | 坏的 |\n|---|---|---|---|\n| 9V 电池 | >8.2V | 7.2 至 8.2V | <7.2V |\n| 1.5V 电池 | >1.35V | 1.22 至 1.35V | <1.22V |\n\n**相关技术指标（节选）**\n\n- 电池测试电流：9V（6mA）；1.5V（100mA）\n- 显示：3 1/2 数位，2000 位液晶显示\n- 超量程提示：以“1”表示\n- 极性：自动（正极无显示）；负极显示（-）\n- 低电池提示：仪表自身电池电压不足时显示 BAT 符号\n- 仪表供电：一粒 9V（NEDA 1604）电池\n\n**来源**\n\n- 本地知识库：《RS-12 使用说明书》（编号 123-1939，数字万用表）中的“电池测试”章节\n- 本地知识库：《技术指标说明》章节\n\n补充说明：检索结果中还有一条“SAM 电池测试仪（库存编号 271-0021，制造商零件编号 913-19）”，那是另一款独立的电池测试仪产品，与 RS-12 的电池测试功能无关，请勿混淆。"
+}

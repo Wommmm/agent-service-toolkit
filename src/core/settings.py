@@ -1,6 +1,6 @@
 from enum import StrEnum
 from json import loads
-from typing import Annotated, Any
+from typing import Annotated, Any,Literal
 
 from dotenv import find_dotenv
 from pydantic import (
@@ -78,6 +78,10 @@ class Settings(BaseSettings):
     GRACEFUL_SHUTDOWN_TIMEOUT: int = 30
     LOG_LEVEL: LogLevel = LogLevel.WARNING
     MAX_TOOL_ROUNDS: int = Field(default=3, ge=1, le=20)
+    RAG_RETRIEVAL_BACKEND: Literal["chroma", "mcp"] = Field(
+    default="chroma",
+    description="RAG检索方式：本地Chroma或项目一MCP",
+    )
 
     AUTH_SECRET: SecretStr | None = None
 

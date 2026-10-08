@@ -11,7 +11,7 @@ from langchain_core.runnables import (
 from langgraph.graph import END, MessagesState, StateGraph
 from langgraph.managed import RemainingSteps
 from langgraph.prebuilt import ToolNode
-
+from agents.retrieval_mcp import knowledge_search
 from agents.safeguard import Safeguard, SafeguardOutput, SafetyAssessment
 from agents.tools import database_search
 from core import get_model, settings
@@ -26,10 +26,10 @@ class AgentState(MessagesState, total=False):
     safety: SafeguardOutput
     remaining_steps: RemainingSteps
 
-
-tools = [database_search]
-
-
+if settings.RAG_RETRIEVAL_BACKEND == "mcp":
+    tools = [knowledge_search]
+else:
+    tools = [database_search]
 def count_tool_rounds(messages: list[AnyMessage]) -> int:
     tool_rounds = 0
     for msg in messages:
@@ -54,6 +54,13 @@ instructions = f"""
     - Only use information from the database. Do not use information from outside sources.
     """
 
+if settings.RAG_RETRIEVAL_BACKEND == "mcp":
+    instructions = f"""
+    你是产品知识库问答助手。今天是{current_date}。
+    回答产品问题前，先调用knowledge_search检索资料。
+    仅根据与用户问题及产品型号相关的返回文档回答；资料不足时明确说明。
+    引用工具返回的来源，不编造链接、产品参数或检索结果。
+    """
 
 def wrap_model(
     model: BaseChatModel, bind_tools: bool = True
