@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, AnyMessage, SystemMessage
+from langchain_core.messages import AIMessage, SystemMessage
 from langchain_core.runnables import (
     RunnableConfig,
     RunnableLambda,
@@ -13,6 +13,7 @@ from langgraph.managed import RemainingSteps
 from langgraph.prebuilt import ToolNode
 
 from agents.safeguard import Safeguard, SafeguardOutput, SafetyAssessment
+from agents.tool_policy import count_tool_rounds, handle_retrieval_error
 from agents.tools import database_search
 from core import get_model, settings
 
@@ -28,14 +29,6 @@ class AgentState(MessagesState, total=False):
 
 
 tools = [database_search]
-
-
-def count_tool_rounds(messages: list[AnyMessage]) -> int:
-    tool_rounds = 0
-    for msg in messages:
-        if isinstance(msg, AIMessage) and msg.tool_calls:
-            tool_rounds += 1
-    return tool_rounds
 
 
 current_date = datetime.now().strftime("%B %d, %Y")
@@ -82,6 +75,13 @@ async def acall_model(state: AgentState, config: RunnableConfig) -> AgentState:
     )
     response = await model_runnable.ainvoke(state, config)
 
+    if tool_rounds >= settings.MAX_TOOL_ROUNDS and response.tool_calls:
+        return {
+            "messages": [
+                AIMessage(id=response.id, content="已达到本轮工具调用上限，请缩小问题范围后重试。")
+            ]
+        }
+
     if state["remaining_steps"] < 2 and response.tool_calls:
         return {
             "messages": [
@@ -109,7 +109,7 @@ async def block_unsafe_content(state: AgentState, config: RunnableConfig) -> Age
 # Define the graph
 agent = StateGraph(AgentState)
 agent.add_node("model", acall_model)
-agent.add_node("tools", ToolNode(tools))
+agent.add_node("tools", ToolNode(tools, handle_tool_errors=handle_retrieval_error))
 agent.add_node("guard_input", safeguard_input)
 agent.add_node("block_unsafe_content", block_unsafe_content)
 agent.set_entry_point("guard_input")
