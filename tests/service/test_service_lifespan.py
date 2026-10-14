@@ -46,6 +46,8 @@ async def test_lifespan(monkeypatch, caplog) -> None:
             raise RuntimeError("boom")
 
     def fake_get_agent(agent_key: str):
+        if agent_key == "bad":
+            raise RuntimeError("Unloaded agent must not be requested")
         return agents[agent_key]
 
     monkeypatch.setattr(service, "initialize_database", fake_initialize_database)
@@ -70,8 +72,8 @@ async def test_lifespan(monkeypatch, caplog) -> None:
     assert fake_store_setup
     assert agents["good"].checkpointer is fake_saver
     assert agents["good"].store is fake_store
-    assert agents["bad"].checkpointer is fake_saver
-    assert agents["bad"].store is fake_store
+    assert agents["bad"].checkpointer is None
+    assert agents["bad"].store is None
 
     assert "Agent loaded: good" in caplog.text
     assert "Failed to load agent bad: boom" in caplog.text

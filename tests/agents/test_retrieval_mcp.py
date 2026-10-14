@@ -35,16 +35,18 @@ async def test_tool_node_converts_retrieval_error(mcp_reply):
     tool_message = result["messages"][-1]
     assert tool_message.type == "tool"
     assert tool_message.status == "error"
-    assert tool_message.content == "知识库检索暂时不可用，请稍后重试"
+    assert json.loads(tool_message.content)["code"] == "retrieval_unavailable"
     assert tool_message.tool_call_id == "call-1"
     assert mcp_reply["calls"] == [("search_knowledge", {"query": "RS-12电池"})]
     assert mcp_reply["closed"]
 @pytest.fixture
 def mcp_reply(monkeypatch):
+    monkeypatch.setattr(retrieval_mcp.settings, "RETRIEVAL_MCP_CONTRACT", "legacy")
+    monkeypatch.setattr(retrieval_mcp.settings, "RETRIEVAL_MCP_URL", "http://127.0.0.1:8002/mcp")
     state = {"reply": None, "initialized": False, "closed": False, "calls": []}
 
     @asynccontextmanager
-    async def transport(*, url):
+    async def transport(*, url, http_client):
         assert url == "http://127.0.0.1:8002/mcp"
         yield "read", "write", None
 
@@ -79,7 +81,9 @@ async def test_returns_document_json_and_preserves_empty_results(mcp_reply, docu
     )
     query = "RS-12电池"
     result = await retrieval_mcp.knowledge_search.ainvoke({"query": query})
-    assert json.loads(result) == documents
+    payload = json.loads(result)
+    assert [doc["content"] for doc in payload["documents"]] == [doc["content"] for doc in documents]
+    assert payload["status"] == ("ok" if documents else "empty")
     assert mcp_reply["calls"] == [("search_knowledge", {"query": query})]
     assert mcp_reply["closed"]
 
@@ -89,7 +93,7 @@ async def test_tool_error_is_not_returned_as_reference_documents(mcp_reply):
     mcp_reply["reply"] = SimpleNamespace(
         isError=True, structuredContent=None, content=["database unavailable"]
     )
-    with pytest.raises(RuntimeError, match="database unavailable"):
+    with pytest.raises(RuntimeError, match="retrieval_unavailable"):
         await retrieval_mcp.knowledge_search.ainvoke({"query": "用户问题"})
     assert mcp_reply["closed"]
 
@@ -99,6 +103,6 @@ async def test_missing_structured_data_is_not_treated_as_empty_search(mcp_reply)
     mcp_reply["reply"] = SimpleNamespace(
         isError=False, structuredContent=None, content=[]
     )
-    with pytest.raises(RuntimeError, match="结构化数据"):
+    with pytest.raises(RuntimeError, match="missing_structured_content"):
         await retrieval_mcp.knowledge_search.ainvoke({"query": "用户问题"})
     assert mcp_reply["closed"]

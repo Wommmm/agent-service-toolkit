@@ -1,0 +1,61 @@
+{
+  "mode": "live",
+  "evidence": "real_model_real_http_mcp_real_graph_asgi",
+  "dataset_version": "products-rs12-v1",
+  "created_utc": "2026-10-14T03:32:13.863816+00:00",
+  "same_thread": true,
+  "max_tool_rounds": 1,
+  "max_tool_calls": 1,
+  "model": "openai-compatible",
+  "retrieval_contract": "v1",
+  "limitations": "Small RS-12 dataset; keyword and citation membership checks do not prove factual entailment or general quality. Simulated injection case is not a live-model security test.",
+  "passed": 1,
+  "total": 2,
+  "cases": [
+    {
+      "id": "rs12_battery",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12万用表使用一粒9V（NEDA 1604）电池[doc:78efe82d21ee334bcd0eaf12]。",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "78efe82d21ee334bcd0eaf12",
+          "source": "local",
+          "title": "Knowledge base document",
+          "chunk_id": "469601738353018839",
+          "url": ""
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "9bf5fb579c0244b1a09a0e9f8ba0df0d",
+          "execution_id": "9bf5fb579c0244b1a09a0e9f8ba0df0d",
+          "backend": "live",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 59.73,
+      "run_id": "01a13876-d1bd-7021-abd0-438378813298"
+    },
+    {
+      "id": "rs12_temperature",
+      "http_status": 200,
+      "passed": false,
+      "answer": "回答包含无法核对的引用，请重新提问或核对原始资料。",
+      "answer_status": "unverified",
+      "tool_calls": 0,
+      "tool_rounds": 0,
+      "citations": [],
+      "citations_valid": true,
+      "retrievals": [],
+      "usage": null,
+      "latency_seconds": 0.681,
+      "run_id": "01a13877-bb01-75d0-8aae-1321d1169ec3"
+    }
+  ]
+}

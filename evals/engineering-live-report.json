@@ -1,0 +1,76 @@
+{
+  "mode": "live",
+  "evidence": "real_model_real_http_mcp_real_graph_asgi",
+  "dataset_version": "products-rs12-v1",
+  "created_utc": "2026-10-14T03:35:21.708926+00:00",
+  "same_thread": true,
+  "max_tool_rounds": 1,
+  "max_tool_calls": 1,
+  "model": "openai-compatible",
+  "retrieval_contract": "v1",
+  "limitations": "Small RS-12 dataset; keyword and citation membership checks do not prove factual entailment or general quality. Simulated injection case is not a live-model security test.",
+  "passed": 2,
+  "total": 2,
+  "cases": [
+    {
+      "id": "rs12_battery",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12万用表使用一粒9V (NEDA 1604) 电池[doc:78efe82d21ee334bcd0eaf12]。",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "78efe82d21ee334bcd0eaf12",
+          "source": "local",
+          "title": "Knowledge base document",
+          "chunk_id": "469601738353018839",
+          "url": ""
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "e5d3be61fde148e69901b02a0b966ab2",
+          "execution_id": "e5d3be61fde148e69901b02a0b966ab2",
+          "backend": "live",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 22.627,
+      "run_id": "01a13879-f1b3-73d2-b3d9-a435b93602f0"
+    },
+    {
+      "id": "rs12_temperature",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12万用表的工作温度范围为32°F ~ 122°F（0°C ~ 50°C）[doc:78efe82d21ee334bcd0eaf12]。",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "78efe82d21ee334bcd0eaf12",
+          "source": "local",
+          "title": "Knowledge base document",
+          "chunk_id": "469601738353018839",
+          "url": ""
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "5b0d025dbae4493ab58e61067608b28b",
+          "execution_id": "5b0d025dbae4493ab58e61067608b28b",
+          "backend": "live",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 20.838,
+      "run_id": "01a1387a-4a08-79e3-a704-ad49af220cda"
+    }
+  ]
+}

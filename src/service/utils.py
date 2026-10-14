@@ -57,6 +57,8 @@ def langchain_to_chat_message(message: BaseMessage) -> ChatMessage:
                 ai_message.tool_calls = message.tool_calls
             if message.response_metadata:
                 ai_message.response_metadata = message.response_metadata
+            if isinstance(message.additional_kwargs.get("agent_result"), dict):
+                ai_message.custom_data["agent_result"] = message.additional_kwargs["agent_result"]
             return ai_message
         case ToolMessage():
             tool_message = ChatMessage(
@@ -64,6 +66,7 @@ def langchain_to_chat_message(message: BaseMessage) -> ChatMessage:
                 content=convert_message_content_to_string(message.content),
                 tool_call_id=message.tool_call_id,
             )
+            tool_message.custom_data["status"] = message.status
             return tool_message
         case LangchainChatMessage():
             if message.role == "custom":

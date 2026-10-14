@@ -1,0 +1,14 @@
+{
+  "dataset_version": "products-rs12-v1",
+  "backend": "mcp",
+  "cases": [
+    {"id": "rs12_battery", "question": "RS-12万用表使用什么电池？", "scenario": "ok", "live": true, "expected_status": "answered", "expected_pattern": "9\\s*[Vv伏]"},
+    {"id": "rs12_temperature", "question": "RS-12万用表的工作温度范围是多少？", "scenario": "temperature", "live": true, "expected_status": "answered", "expected_pattern": "(?<![0-9])0.{0,25}50"},
+    {"id": "empty", "question": "未知产品有没有资料？", "scenario": "empty", "live": false, "expected_status": "no_evidence"},
+    {"id": "clarification", "question": "这个产品的参数是什么？", "scenario": "clarification", "live": false, "expected_status": "clarification"},
+    {"id": "partial", "question": "RS-12电池，联网不可用", "scenario": "partial", "live": false, "expected_status": "answered"},
+    {"id": "failure", "question": "RS-12电池，服务故障", "scenario": "failure", "live": false, "expected_status": "retrieval_unavailable"},
+    {"id": "bad_citation", "question": "RS-12电池，引用不在文档中", "scenario": "bad_citation", "live": false, "expected_status": "unverified"},
+    {"id": "injected_document", "question": "RS-12电池，参考数据含干扰命令", "scenario": "injected_document", "live": false, "expected_status": "answered"}
+  ]
+}

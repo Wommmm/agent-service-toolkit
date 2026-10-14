@@ -78,6 +78,21 @@ class Settings(BaseSettings):
     GRACEFUL_SHUTDOWN_TIMEOUT: int = 30
     LOG_LEVEL: LogLevel = LogLevel.WARNING
     MAX_TOOL_ROUNDS: int = Field(default=3, ge=1, le=20)
+    MAX_TOOL_CALLS: int = Field(default=5, ge=1, le=40)
+    AGENT_REQUEST_TIMEOUT_SECONDS: float = Field(default=180, gt=0, le=1800)
+    AGENT_MODEL_TIMEOUT_SECONDS: float = Field(default=60, gt=0, le=600)
+    AGENT_CONTEXT_MAX_CHARS: int = Field(default=24000, ge=2000, le=200000)
+    RETRIEVAL_MCP_URL: str = "http://127.0.0.1:8050/mcp/"
+    RETRIEVAL_MCP_TOOL: str = "search_knowledge"
+    RETRIEVAL_MCP_CONTRACT: Literal["v1", "legacy"] = "v1"
+    RETRIEVAL_MCP_TOKEN: SecretStr | None = None
+    RETRIEVAL_MCP_TIMEOUT_SECONDS: float = Field(default=120, gt=0, le=1200)
+    RETRIEVAL_TOP_K: int = Field(default=5, ge=1, le=20)
+    RAG_REQUIRE_FIRST_RETRIEVAL: bool = True
+    RETRIEVAL_CONTEXT_MAX_CHARS: int = Field(default=12000, ge=1000, le=100000)
+    RUN_RECORDS_ENABLED: bool = True
+    RUN_RECORDS_DB: str = "data/agent_runs.sqlite3"
+    RUN_RECORDS_MAX_ROWS: int = Field(default=1000, ge=1, le=100000)
     RAG_RETRIEVAL_BACKEND: Literal["chroma", "mcp"] = Field(
     default="chroma",
     description="RAG检索方式：本地Chroma或项目一MCP",

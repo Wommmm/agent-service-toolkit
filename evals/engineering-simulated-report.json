@@ -1,0 +1,219 @@
+{
+  "mode": "simulated",
+  "evidence": "simulated_model_and_retrieval_real_graph_asgi",
+  "dataset_version": "products-rs12-v1",
+  "created_utc": "2026-10-14T03:41:45.092616+00:00",
+  "same_thread": true,
+  "max_tool_rounds": 1,
+  "max_tool_calls": 1,
+  "model": "gpt-5-nano",
+  "retrieval_contract": "v1",
+  "agent_source": "D:\\agent-projects\\agent-service-engineering\\src\\agents\\rag_assistant.py",
+  "context_policy": "whole_turn_character_window",
+  "limitations": "Small RS-12 dataset; keyword and citation membership checks do not prove factual entailment or general quality. Simulated injection case is not a live-model security test.",
+  "passed": 8,
+  "total": 8,
+  "cases": [
+    {
+      "id": "rs12_battery",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12使用9V电池。[doc:simulated-doc]",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "simulated-doc",
+          "source": "demo",
+          "title": "模拟资料",
+          "chunk_id": null,
+          "url": null
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.032,
+      "run_id": "01a13880-7492-74e3-b4b6-023704caeef2"
+    },
+    {
+      "id": "rs12_temperature",
+      "http_status": 200,
+      "passed": true,
+      "answer": "工作温度为0°C至50°C。[doc:simulated-doc]",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "simulated-doc",
+          "source": "demo",
+          "title": "模拟资料",
+          "chunk_id": null,
+          "url": null
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.014,
+      "run_id": "01a13880-74a3-7910-90b5-6c94df711928"
+    },
+    {
+      "id": "empty",
+      "http_status": 200,
+      "passed": true,
+      "answer": "没有找到相关资料。",
+      "answer_status": "no_evidence",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "empty"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.013,
+      "run_id": "01a13880-74b1-7b70-9d61-06f6f6b098a5"
+    },
+    {
+      "id": "clarification",
+      "http_status": 200,
+      "passed": true,
+      "answer": "请提供产品型号。",
+      "answer_status": "clarification",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "clarification"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.014,
+      "run_id": "01a13880-74be-7f43-a99c-2ae7a90f6c60"
+    },
+    {
+      "id": "partial",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12使用9V电池。[doc:simulated-doc]",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "simulated-doc",
+          "source": "demo",
+          "title": "模拟资料",
+          "chunk_id": null,
+          "url": null
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "partial"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.014,
+      "run_id": "01a13880-74cc-7ee3-b383-89222e1696f6"
+    },
+    {
+      "id": "failure",
+      "http_status": 503,
+      "passed": true,
+      "answer": "",
+      "answer_status": "retrieval_unavailable",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [],
+      "citations_valid": true,
+      "retrievals": [],
+      "usage": null,
+      "latency_seconds": 0.018,
+      "run_id": "01a13880-74da-7110-8cdf-4a62094b961f"
+    },
+    {
+      "id": "bad_citation",
+      "http_status": 200,
+      "passed": true,
+      "answer": "回答包含无法核对的引用，请重新提问或核对原始资料。",
+      "answer_status": "unverified",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.013,
+      "run_id": "01a13880-74eb-78d3-b2da-0f62ed009d0a"
+    },
+    {
+      "id": "injected_document",
+      "http_status": 200,
+      "passed": true,
+      "answer": "RS-12使用9V电池。[doc:simulated-doc]",
+      "answer_status": "answered",
+      "tool_calls": 1,
+      "tool_rounds": 1,
+      "citations": [
+        {
+          "id": "simulated-doc",
+          "source": "demo",
+          "title": "模拟资料",
+          "chunk_id": null,
+          "url": null
+        }
+      ],
+      "citations_valid": true,
+      "retrievals": [
+        {
+          "request_id": "simulated-request",
+          "execution_id": "simulated-execution",
+          "backend": "demo",
+          "status": "ok"
+        }
+      ],
+      "usage": null,
+      "latency_seconds": 0.014,
+      "run_id": "01a13880-74f8-77b1-a2ba-822785dd0ce3"
+    }
+  ]
+}

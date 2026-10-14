@@ -1,5 +1,7 @@
 # RAG Agent接入项目一MCP检索
 
+> 工程分支已升级：默认接入8050独立服务，配置RETRIEVAL_MCP_URL/CONTRACT/TOKEN，保留v1状态、来源与执行ID。预算、引用、记录和验证见[ENGINEERING.md](ENGINEERING.md)。下文保留原8002学习版本的历史说明，旧服务需显式legacy适配；本版工具返回结构化信封，而非单独文档列表。
+
 `src/agents/retrieval_mcp.py`中的LangChain工具`knowledge_search`作为MCP Client调用项目一的`search_knowledge`。它提取文档列表并返回JSON字符串，随后由ToolNode生成工具消息，供模型回答。
 
 ## 配置与运行

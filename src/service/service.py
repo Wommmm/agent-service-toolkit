@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import json
 import logging
@@ -6,6 +7,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated, Any
 from uuid import UUID, uuid4
+from time import perf_counter
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -45,6 +47,7 @@ from schema import (
 )
 from service.agui import router as agui_router
 from service.threads import list_user_threads
+from service.run_records import get_run, record_run, timed_stream
 from service.utils import (
     convert_message_content_to_string,
     ensure_model_available,
@@ -106,6 +109,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 except Exception as e:
                     logger.error(f"Failed to load agent {a.key}: {e}")
                     # 继续加载其他 Agent，而不是让启动失败。
+                    continue
 
                 agent = get_agent(a.key)
                 # 设置 checkpointer，用于线程级记忆（对话历史）。
@@ -171,7 +175,7 @@ async def _handle_input(
 
     config = RunnableConfig(
         configurable=configurable,
-        metadata={"user_id": user_id, "agent_id": agent_id},
+        metadata={"user_id": user_id, "agent_id": agent_id, "engineering_run_id": str(run_id)},
         run_id=run_id,
         callbacks=callbacks,
     )
@@ -198,6 +202,29 @@ async def _handle_input(
     return kwargs, run_id
 
 
+def requested_agent(agent_id: str) -> AgentGraph:
+    try:
+        return get_agent(agent_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Unknown agent") from None
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="Agent not ready") from None
+
+
+@router.get("/runs/{run_id}")
+async def run_summary(run_id: str) -> dict:
+    """Operator diagnostics; inherits the router's existing shared bearer policy."""
+    if not settings.RUN_RECORDS_ENABLED:
+        raise HTTPException(status_code=404, detail="Run records disabled")
+    try:
+        result = await get_run(run_id)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Run records unavailable") from None
+    if result is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    return result
+
+
 @router.post("/{agent_id}/invoke", operation_id="invoke_with_agent_id")
 @router.post("/invoke")
 async def invoke(user_input: UserInput, agent_id: str = DEFAULT_AGENT) -> ChatMessage:
@@ -214,11 +241,13 @@ async def invoke(user_input: UserInput, agent_id: str = DEFAULT_AGENT) -> ChatMe
     # in interrupt-agent, or a tool step in research-assistant), it's omitted. Arguably,
     # you'd want to include it. You could update the API to return a list of ChatMessages
     # in that case.
-    agent: AgentGraph = get_agent(agent_id)
+    agent: AgentGraph = requested_agent(agent_id)
     kwargs, run_id = await _handle_input(user_input, agent, agent_id)
+    started = perf_counter()
+    summary = None
 
     try:
-        response_events: list[tuple[str, Any]] = await agent.ainvoke(**kwargs, stream_mode=["updates", "values"])  # type: ignore # fmt: skip
+        response_events: list[tuple[str, Any]] = await asyncio.wait_for(agent.ainvoke(**kwargs, stream_mode=["updates", "values"]), settings.AGENT_REQUEST_TIMEOUT_SECONDS)  # type: ignore # fmt: skip
         response_type, response = response_events[-1]
         # A run that stops on an interrupt reports it on the final event of either stream
         # mode, so check for the interrupt before falling back to the last message.
@@ -234,9 +263,21 @@ async def invoke(user_input: UserInput, agent_id: str = DEFAULT_AGENT) -> ChatMe
             raise ValueError(f"Unexpected response type: {response_type}")
 
         output.run_id = str(run_id)
+        summary = output.custom_data.get("agent_result")
+        run_status = summary.get("status", "completed") if summary else ("interrupted" if "__interrupt__" in response else "completed")
+        await record_run(run_id, agent_id, kwargs["config"]["configurable"]["thread_id"], started, run_status, summary)
+        if run_status in ("timeout", "model_unavailable", "context_exceeded", "retrieval_unavailable"):
+            code = {"timeout": 504, "model_unavailable": 503, "context_exceeded": 413, "retrieval_unavailable": 503}[run_status]
+            raise HTTPException(status_code=code, detail={"code": run_status, "run_id": str(run_id)})
         return output
+    except HTTPException:
+        raise
+    except TimeoutError:
+        await record_run(run_id, agent_id, kwargs["config"]["configurable"]["thread_id"], started, "timeout")
+        raise HTTPException(status_code=504, detail={"code": "timeout", "run_id": str(run_id)}) from None
     except Exception as e:
-        logger.error(f"An exception occurred: {e}")
+        logger.error("Invoke failed run_id=%s error_type=%s", run_id, type(e).__name__)
+        await record_run(run_id, agent_id, kwargs["config"]["configurable"]["thread_id"], started, "error", summary)
         raise HTTPException(status_code=500, detail="Unexpected error")
 
 
@@ -248,14 +289,22 @@ async def message_generator(
 
     This is the workhorse method for the /stream endpoint.
     """
-    agent: AgentGraph = get_agent(agent_id)
-    kwargs, run_id = await _handle_input(user_input, agent, agent_id)
+    agent: AgentGraph = requested_agent(agent_id)
+    try:
+        kwargs, run_id = await _handle_input(user_input, agent, agent_id)
+    except HTTPException as error:
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Invalid request', 'code': error.status_code})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
+    started = perf_counter()
+    summary = None
+    run_status = "completed"
 
     try:
         # Process streamed events from the graph and yield messages over the SSE stream.
-        async for stream_event in agent.astream(  # type: ignore[no-matching-overload]
+        async for stream_event in timed_stream(agent.astream(  # type: ignore[no-matching-overload]
             **kwargs, stream_mode=["updates", "messages", "custom"], subgraphs=True
-        ):
+        ), settings.AGENT_REQUEST_TIMEOUT_SECONDS):
             if not isinstance(stream_event, tuple):
                 continue
             # Handle different stream event structures based on subgraphs
@@ -278,6 +327,9 @@ async def message_generator(
                         continue
                     updates = updates or {}
                     update_messages = updates.get("messages", [])
+                    if agent_id == "rag-assistant" and node == "model" and update_messages and not getattr(update_messages[-1], "tool_calls", None):
+                        # The finalized message includes checked references; emit it once.
+                        continue
                     # special cases for using langgraph-supervisor library
                     if "supervisor" in node or "sub-agent" in node:
                         # the only tools that come from the actual agent are the handoff and handback tools
@@ -318,6 +370,9 @@ async def message_generator(
                 processed_messages.append(_create_ai_message(current_message))
 
             for message in processed_messages:
+                if isinstance(message, AIMessage) and isinstance(message.additional_kwargs.get("agent_result"), dict):
+                    summary = message.additional_kwargs["agent_result"]
+                    run_status = summary.get("status", "completed")
                 try:
                     chat_message = langchain_to_chat_message(message)
                     chat_message.run_id = str(run_id)
@@ -346,11 +401,25 @@ async def message_generator(
                     # that the model is asking for a tool to be invoked.
                     # So we only print non-empty content.
                     yield f"data: {json.dumps({'type': 'token', 'content': convert_message_content_to_string(content)})}\n\n"
+        if run_status in ("timeout", "model_unavailable", "context_exceeded", "retrieval_unavailable"):
+            yield f"data: {json.dumps({'type': 'error', 'content': 'Agent execution failed', 'code': run_status, 'run_id': str(run_id)})}\n\n"
+    except TimeoutError:
+        run_status = "timeout"
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Agent execution timed out', 'code': 'timeout', 'run_id': str(run_id)})}\n\n"
+    except asyncio.CancelledError:
+        run_status = "cancelled"
+        raise
+    except GeneratorExit:
+        run_status = "cancelled"
+        raise
     except Exception as e:
-        logger.error(f"Error in message generator: {e}")
+        run_status = "error"
+        logger.error("Stream failed run_id=%s error_type=%s", run_id, type(e).__name__)
         yield f"data: {json.dumps({'type': 'error', 'content': 'Internal server error'})}\n\n"
     finally:
-        yield "data: [DONE]\n\n"
+        await record_run(run_id, agent_id, kwargs["config"]["configurable"]["thread_id"], started, run_status, summary)
+        if run_status != "cancelled":
+            yield "data: [DONE]\n\n"
 
 
 def _create_ai_message(parts: dict) -> AIMessage:
@@ -392,6 +461,7 @@ async def stream(user_input: StreamInput, agent_id: str = DEFAULT_AGENT) -> Stre
 
     Set `stream_tokens=false` to return intermediate messages but not token-by-token.
     """
+    requested_agent(agent_id)
     return StreamingResponse(
         message_generator(user_input, agent_id),
         media_type="text/event-stream",
