@@ -327,7 +327,7 @@ async def message_generator(
                         continue
                     updates = updates or {}
                     update_messages = updates.get("messages", [])
-                    if agent_id == "rag-assistant" and node == "model" and update_messages and not getattr(update_messages[-1], "tool_calls", None):
+                    if agent_id == "rag-assistant" and node in ("model", "block_unsafe_content") and update_messages and not getattr(update_messages[-1], "tool_calls", None):
                         # The finalized message includes checked references; emit it once.
                         continue
                     # special cases for using langgraph-supervisor library

@@ -110,6 +110,7 @@ async def acall_model(state: AgentState, config: RunnableConfig) -> AgentState:
     )
     started = perf_counter()
     outcome = state.get("outcome", "running")
+    model_status = "ok"
     try:
         timeout = remaining_seconds(state, settings.AGENT_MODEL_TIMEOUT_SECONDS)
         if timeout <= 0:
@@ -118,16 +119,19 @@ async def acall_model(state: AgentState, config: RunnableConfig) -> AgentState:
     except ContextBudgetExceeded:
         response = AIMessage(content="本次问题或工具结果过长，请缩短问题或新建会话。")
         outcome = "context_exceeded"
+        model_status = "context_exceeded"
     except TimeoutError:
         response = AIMessage(content="本次模型调用超时，请稍后重试。")
         outcome = "timeout"
+        model_status = "timeout"
     except Exception:
         response = AIMessage(content="模型服务暂时不可用，请稍后重试。")
         outcome = "model_unavailable"
+        model_status = "model_unavailable"
     events = state.get("model_events", []) + [{
         "model": str(response.response_metadata.get("model_name") or getattr(m, "model_name", config["configurable"].get("model", settings.DEFAULT_MODEL))),
         "duration_ms": round((perf_counter() - started) * 1000, 3),
-        "usage": response.usage_metadata, "status": "ok" if outcome == "running" else outcome,
+        "usage": response.usage_metadata, "status": model_status,
     }]
     if response.tool_calls and not can_call:
         response = AIMessage(content="已达到本次工具调用预算，请缩小问题后重试。")
@@ -154,7 +158,7 @@ async def safeguard_input(state: AgentState, config: RunnableConfig) -> AgentSta
 
 async def block_unsafe_content(state: AgentState, config: RunnableConfig) -> AgentState:
     safety: SafeguardOutput = state["safety"]
-    return {"messages": [format_safety_message(safety)]}
+    return {"messages": [format_safety_message(safety)], "outcome": "blocked"}
 
 
 def handle_retrieval_error(error: RuntimeError) -> str:
@@ -227,7 +231,7 @@ agent.add_conditional_edges(
 )
 
 # Always END after blocking unsafe content
-agent.add_edge("block_unsafe_content", END)
+agent.add_edge("block_unsafe_content", "finalize")
 
 # Always run "model" after "tools"
 agent.add_edge("tools", "model")

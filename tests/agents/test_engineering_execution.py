@@ -132,6 +132,7 @@ async def test_tool_timeout_finishes_with_all_call_ids(graph_setup, monkeypatch)
     response = await rag.rag_assistant.ainvoke({"messages": [HumanMessage(content="电池?")]}, config())
     assert response["execution_result"]["status"] == "timeout"
     assert response["tool_calls_used"] == 1
+    assert response["model_events"][-1]["status"] == "ok"
 
 
 def test_context_window_removes_complete_old_turns_only():
@@ -160,3 +161,17 @@ def test_chroma_text_evidence_preserves_original_links_but_is_unverified():
     assert result["messages"][-1].content == answer
     assert result["execution_result"]["citation_validation"] == "not_available"
     assert result["execution_result"]["answer_status"] == "unverified"
+
+
+@pytest.mark.asyncio
+async def test_guarded_request_is_recorded_as_blocked_without_model_or_tool(graph_setup, monkeypatch):
+    from agents.safeguard import SafeguardOutput, SafetyAssessment
+    class BlockedGuard:
+        async def ainvoke(self, messages):
+            return SafeguardOutput(safety_assessment=SafetyAssessment.UNSAFE, unsafe_categories=["test-category"])
+    monkeypatch.setattr(rag, "Safeguard", BlockedGuard)
+    model, _ = graph_setup
+    response = await rag.rag_assistant.ainvoke({"messages": [HumanMessage(content="测试拦截")]}, config())
+    assert response["execution_result"]["status"] == "blocked"
+    assert response["execution_result"]["tool_calls"] == 0
+    assert model.seen == []
