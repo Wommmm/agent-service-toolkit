@@ -196,3 +196,8 @@ smoke_live_app_failure.png
 
 # Claude Code agent worktrees (ephemeral, per-agent git checkouts)
 .claude/worktrees/
+
+# 本地文档及导入过程产物
+docs/
+knowledge/processor/import_process/import_temp_dir/
+.pytest_cache/

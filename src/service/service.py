@@ -98,17 +98,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 )
 
             # Configure agents with both memory components and async loading
-            agents = get_all_agent_info()
+            agents = get_all_agent_info() #遍历所有Agent
             for a in agents:
                 try:
-                    await load_agent(a.key)
+                    await load_agent(a.key)#异步加载所有Agent
                     logger.info(f"Agent loaded: {a.key}")
                 except Exception as e:
                     logger.error(f"Failed to load agent {a.key}: {e}")
-                    # Continue with other agents rather than failing startup
+                    # 继续加载其他 Agent，而不是让启动失败。
 
                 agent = get_agent(a.key)
-                # Set checkpointer for thread-scoped memory (conversation history)
+                # 设置 checkpointer，用于线程级记忆（对话历史）。
                 agent.checkpointer = saver
                 # Set store for long-term memory (cross-conversation knowledge)
                 agent.store = store
@@ -202,12 +202,12 @@ async def _handle_input(
 @router.post("/invoke")
 async def invoke(user_input: UserInput, agent_id: str = DEFAULT_AGENT) -> ChatMessage:
     """
-    Invoke an agent with user input to retrieve a final response.
+    使用用户输入调用智能体，以获取最终响应。
 
-    If agent_id is not provided, the default agent will be used.
-    Use thread_id to persist and continue a multi-turn conversation. run_id kwarg
-    is also attached to messages for recording feedback.
-    Use user_id to persist and continue a conversation across multiple threads.
+    如果未提供 agent_id，将使用默认智能体。
+    使用 thread_id 来持久化并继续多轮对话。run_id 关键字参数
+    也会附加到消息上，用于记录反馈。
+    使用 user_id 跨多个线程持久化并继续对话。
     """
     # NOTE: Currently this only returns the last message or interrupt.
     # In the case of an agent outputting multiple AIMessages (such as the background step

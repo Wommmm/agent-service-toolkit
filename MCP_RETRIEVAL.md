@@ -27,6 +27,10 @@ $env:PYTHONPATH = Join-Path (Get-Location) 'src'
 - 成功但文档列表为空时，返回JSON字符串`[]`，区别于执行失败。
 - 返回的文档字符串不是最终答案；ToolNode把它加入消息历史，再由模型生成答案或决定继续调用工具。
 
+RAG Agent的ToolNode配置了`handle_retrieval_error`：工具抛出RuntimeError时，转换为`status="error"`的ToolMessage，内容为“知识库检索暂时不可用，请稍后重试”。直接调用`knowledge_search.ainvoke()`仍会抛异常；上述转换只发生在配置了该处理函数的ToolNode中。其他类型的异常仍按当前框架处理机制传播。
+
+2026-10-11新增最小图测试，使用真实工具与错误处理函数、替身MCP会话，验证错误消息状态、内容、调用ID、MCP参数和会话关闭。它只验证工具节点错误转换，不证明真实连接失败已全面覆盖，也不验证后续模型回答。运行MCP测试和轮数测试得到`6 passed, 4 warnings in 8.70s`。
+
 4项MCP工具边界检查使用替身会话，不证明真实网络或数据库连接；与原有轮数及指标测试一起执行为9项通过。真实接入证据单独保存在`evals/mcp_integration_report.json`。
 
 ## 单题真实验证（2026-10-08）

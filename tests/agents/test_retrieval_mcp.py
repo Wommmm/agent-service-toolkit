@@ -1,12 +1,44 @@
 import json
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
-
+from langchain_core.messages import AIMessage
+from langgraph.graph import MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode
+from agents.rag_assistant import handle_retrieval_error
 import pytest
 
 from agents import retrieval_mcp
 
-
+@pytest.mark.asyncio
+async def test_tool_node_converts_retrieval_error(mcp_reply):
+    mcp_reply["reply"] = SimpleNamespace(
+        isError=True, structuredContent=None, content=["database unavailable"]
+    )
+    graph = StateGraph(MessagesState)
+    tool_node = ToolNode(
+        [retrieval_mcp.knowledge_search],
+        handle_tool_errors = handle_retrieval_error,
+    )
+    graph.add_node("tools", tool_node)
+    graph.set_entry_point("tools")
+    graph.set_finish_point("tools")
+    app = graph.compile()
+    message = AIMessage(
+        content="",
+        tool_calls=[{
+            "name": "knowledge_search",
+            "args": {"query": "RS-12电池"},
+            "id": "call-1",
+        }],
+    )
+    result = await app.ainvoke({"messages":[message]})
+    tool_message = result["messages"][-1]
+    assert tool_message.type == "tool"
+    assert tool_message.status == "error"
+    assert tool_message.content == "知识库检索暂时不可用，请稍后重试"
+    assert tool_message.tool_call_id == "call-1"
+    assert mcp_reply["calls"] == [("search_knowledge", {"query": "RS-12电池"})]
+    assert mcp_reply["closed"]
 @pytest.fixture
 def mcp_reply(monkeypatch):
     state = {"reply": None, "initialized": False, "closed": False, "calls": []}
@@ -45,9 +77,10 @@ async def test_returns_document_json_and_preserves_empty_results(mcp_reply, docu
     mcp_reply["reply"] = SimpleNamespace(
         isError=False, structuredContent={"result": documents}, content=[]
     )
-    result = await retrieval_mcp.knowledge_search.ainvoke({"query": "用户问题"})
+    query = "RS-12电池"
+    result = await retrieval_mcp.knowledge_search.ainvoke({"query": query})
     assert json.loads(result) == documents
-    assert mcp_reply["calls"] == [("search_knowledge", {"query": "用户问题"})]
+    assert mcp_reply["calls"] == [("search_knowledge", {"query": query})]
     assert mcp_reply["closed"]
 
 

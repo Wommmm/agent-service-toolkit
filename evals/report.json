@@ -4,62 +4,62 @@
     {
       "id": "rag_pto_days",
       "question": "How many days of paid time off do employees receive each year?",
-      "answer": "According to AcmeTech's Employee Handbook, employees receive **15 days of Paid Time Off (PTO) per year**, accrued monthly.\n\nFor context, here are the other leave benefits outlined in the handbook:\n\n- **Sick Leave:** 5 days per year (non-cumulative)\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child\n- **Holidays:** 10 paid public holidays observed by the company\n\nAll leave must be requested in advance through the HR portal, except in emergency situations.\n\nSource: [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf) — Leave & Time-Off Policies section.\n\nIs there anything else you'd like to know about your benefits or time-off policies?",
+      "answer": "Great question! Here's what the handbook says about paid time off:\n\n**Paid Time Off (PTO): 15 days per year, accrued monthly.**\n\nA few additional details from the same Leave & Time-Off section that you may find helpful:\n\n- **Sick Leave:** 5 days per year, non-cumulative\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child\n- **Holidays:** 10 paid public holidays observed by the company\n\nNote that all leave must be requested in advance through the HR portal, except in emergency situations.\n\nIf you have questions about your specific balance or enrollment, you can reach out to HR at hr@acmetech.com or (555) 123-4567. For details on other benefits, see the [Employee Benefits Overview](https://acmetech.com/handbook/benefits) or the [Leave & Time-Off Policies](https://acmetech.com/handbook/leave-policies) section of the handbook.",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 2.94
+      "latency_seconds": 3.67
     },
     {
       "id": "rag_sick_leave_days",
       "question": "How many sick leave days do employees receive each year?",
-      "answer": "**Sick Leave: 5 days per year (non-cumulative).**\n\nPer AcmeTech's Leave & Time-Off Policies, employees receive 5 sick days annually, and they are non-cumulative — meaning unused sick days do not carry over to the next year.\n\nFor reference, here's how sick leave compares to other time-off offerings:\n- **Paid Time Off (PTO):** 15 days per year, accrued monthly\n- **Sick Leave:** 5 days per year, non-cumulative\n- **Parental Leave:** 12 weeks paid leave following birth or adoption\n- **Holidays:** 10 paid public holidays\n\nAll leave must be requested in advance through the HR portal, except in emergency situations.\n\nSource: [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf)\n\nIf you have questions about your specific accrual or need to request leave, you can reach HR at hr@acmetech.com or (555) 123-4567.",
+      "answer": "**Sick Leave: 5 days per year** — this leave is **non-cumulative**, meaning unused days don't carry over to the following year.\n\nA quick note on how it fits with other time off outlined in the handbook's Leave & Time-Off Policies:\n\n| Leave Type | Amount |\n|---|---|\n| Paid Time Off (PTO) | 15 days per year, accrued monthly |\n| Sick Leave | 5 days per year, non-cumulative |\n| Parental Leave | 12 weeks paid, following birth or adoption |\n| Holidays | 10 paid public holidays |\n\nAll leave must be requested in advance through the HR portal, except in emergency situations. If you're unable to attend work due to illness, you should also notify your supervisor as early as possible.\n\nSource: [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf)\n\nFor questions about your specific balance or enrollment details, you can reach HR at hr@acmetech.com or (555) 123-4567.",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 3.33
+      "latency_seconds": 2.78
     },
     {
       "id": "rag_parental_leave",
       "question": "How much paid parental leave do employees receive?",
-      "answer": "Based on the AcmeTech Employee Handbook, employees receive **12 weeks of paid parental leave** following the birth or adoption of a child.\n\nA few related details from the Leave & Time-Off Policies section:\n- **Paid Time Off (PTO):** 15 days per year, accrued monthly\n- **Sick Leave:** 5 days per year, non-cumulative\n- **Holidays:** 10 paid public holidays observed by the company\n\nAll leave must be requested in advance through the HR portal, except in emergency situations.\n\nIf you have questions about eligibility or need additional support, you can reach out to HR at hr@acmetech.com or (555) 123-4567.",
+      "answer": "**Paid Parental Leave: 12 weeks**\n\nAccording to the AcmeTech Employee Handbook, employees receive **12 weeks of paid leave** following the birth or adoption of a child.\n\nA few related details from the Leave & Time-Off Policies section:\n\n| Leave Type | Entitlement |\n|---|---|\n| Paid Time Off (PTO) | 15 days per year, accrued monthly |\n| Sick Leave | 5 days per year, non-cumulative |\n| **Parental Leave** | **12 weeks paid** (birth or adoption) |\n| Holidays | 10 paid public holidays |\n\nPlease note that all leave must be requested in advance through the HR portal, except in emergency situations.\n\nIf you have questions about eligibility or need help submitting a request, you can reach HR at hr@acmetech.com or (555) 123-4567.\n\nSource: AcmeTech Employee Handbook — Leave & Time-Off Policies and Employee Benefits Overview sections.",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 2.77
+      "latency_seconds": 2.25
     },
     {
       "id": "rag_public_holidays",
       "question": "How many paid public holidays does the company observe?",
-      "answer": "AcmeTech observes **10 paid public holidays** per year. This is listed under the company's Leave & Time-Off Policies, alongside PTO (15 days/year, accrued monthly), Sick Leave (5 days/year, non-cumulative), and Parental Leave (12 weeks paid).\n\nAll leave, including holiday-related time off, must be requested in advance through the HR portal except in emergency situations.\n\nFor more details, you can refer to the [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf), or reach out to HR at hr@acmetech.com or (555) 123-4567.",
+      "answer": "AcmeTech observes **10 paid public holidays** per year.\n\nThis falls under the company's Leave & Time-Off Policies, which also include:\n- **Paid Time Off (PTO):** 15 days per year, accrued monthly\n- **Sick Leave:** 5 days per year, non-cumulative\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child\n\nAll leave must be requested in advance through the HR portal, except in emergency situations. For a full list of specific holiday dates or any questions, you can reach out to HR at hr@acmetech.com or (555) 123-4567.\n\nSource: AcmeTech Employee Handbook (Leave & Time-Off Policies)",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 2.71
+      "latency_seconds": 2.29
     },
     {
       "id": "rag_pto_accrual",
       "question": "How is paid time off accrued?",
-      "answer": "Here's what the AcmeTech Employee Handbook says about paid time off:\n\n**Paid Time Off (PTO): 15 days per year, accrued monthly.**\n\nIn other words, you earn your PTO incrementally throughout the year rather than receiving the full 15 days upfront — roughly 1.25 days per month.\n\nA few related details from the Leave & Time-Off Policies section:\n- **Sick Leave:** 5 days per year, non-cumulative (it doesn't roll over).\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child.\n- **Holidays:** 10 paid public holidays observed by the company.\n- All leave must be requested in advance through the HR portal, except in emergency situations.\n\nIf you have questions about your specific accrual balance or eligibility, you can reach HR at hr@acmetech.com or (555) 123-4567.\n\n*Source: AcmeTech Employee Handbook — Leave & Time-Off Policies*",
+      "answer": "Here's what the AcmeTech Employee Handbook says about paid time off:\n\n**Paid Time Off (PTO):** Employees receive **15 days per year, accrued monthly**. This means you build up PTO gradually over the course of the year rather than receiving the full allotment up front.\n\nA few related details from the Leave & Time-Off Policies section:\n- **Sick Leave:** 5 days per year (non-cumulative)\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child\n- **Holidays:** 10 paid public holidays observed by the company\n\nAll leave must be requested in advance through the HR portal, except in emergency situations.\n\nFor more details, you can reach HR at hr@acmetech.com or (555) 123-4567.\n\nSource: [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf)",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 3.11
+      "latency_seconds": 2.72
     },
     {
       "id": "rag_leave_request",
       "question": "Where should employees submit leave requests?",
-      "answer": "# Submitting Leave Requests\n\n**All leave must be requested in advance through the HR portal**, except in emergency situations.\n\nPer AcmeTech's Leave & Time-Off Policies, employees are entitled to:\n\n| Leave Type | Amount |\n|---|---|\n| Paid Time Off (PTO) | 15 days/year, accrued monthly |\n| Sick Leave | 5 days/year, non-cumulative |\n| Parental Leave | 12 weeks paid (birth or adoption) |\n| Holidays | 10 paid public holidays |\n\n**A few related notes:**\n- In emergency situations, submit your request outside the normal advance notice through the HR portal.\n- If you're unable to attend work due to illness or an emergency, notify your supervisor as early as possible.\n- For questions about leave or your benefits, you can reach HR at hr@acmetech.com or (555) 123-4567.\n\n*Source: AcmeTech Employee Handbook — Leave & Time-Off Policies and Contact & Support sections.*",
+      "answer": "**Employees should submit leave requests through the HR portal.** According to the handbook, all leave must be requested **in advance through the HR portal**, except in emergency situations.\n\nA few related details to keep in mind:\n\n- **PTO:** 15 days per year, accrued monthly\n- **Sick Leave:** 5 days per year, non-cumulative\n- **Parental Leave:** 12 weeks paid leave following the birth or adoption of a child\n- **Holidays:** 10 paid public holidays observed by the company\n\nIf you're absent due to illness or an emergency, notify your supervisor as early as possible. And for any questions about your leave, you can reach HR at **hr@acmetech.com** or **(555) 123-4567**.\n\nSource: [AcmeTech Employee Handbook](./data/AcmeTech_Employee_Handbook.pdf)",
       "tool_rounds": 1,
       "answer_matched": true,
       "within_round_limit": true,
       "completed": true,
-      "latency_seconds": 2.79
+      "latency_seconds": 1.97
     }
   ]
 }

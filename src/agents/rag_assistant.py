@@ -113,10 +113,12 @@ async def block_unsafe_content(state: AgentState, config: RunnableConfig) -> Age
     return {"messages": [format_safety_message(safety)]}
 
 
+def handle_retrieval_error(error: RuntimeError) -> str:
+    return "知识库检索暂时不可用，请稍后重试"
 # Define the graph
 agent = StateGraph(AgentState)
 agent.add_node("model", acall_model)
-agent.add_node("tools", ToolNode(tools))
+agent.add_node("tools", ToolNode(tools,handle_tool_errors = handle_retrieval_error),)
 agent.add_node("guard_input", safeguard_input)
 agent.add_node("block_unsafe_content", block_unsafe_content)
 agent.set_entry_point("guard_input")
